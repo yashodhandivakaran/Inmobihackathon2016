@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/yashodhandivakaran/Inmobihackathon2016",
   "dependencies": {
-    "polyline": "^0.2.0"
+    "async": "^1.5.2",
+    "googlemaps": "^1.2.0",
+    "polyline": "^0.2.0",
+    "underscore": "^1.8.3"
   }
 }
