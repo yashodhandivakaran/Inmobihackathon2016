@@ -3,7 +3,7 @@
     "AIzaSyDLqnTOwKE4PbjdRQBSjrBUjsq1ozqpRMs"
   ],
   "MONGODB": {
-    "host": "",
-    "port": 123
+    "host": "54.85.160.82",
+    "port": 27019
   }
 }
