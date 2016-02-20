@@ -17,7 +17,6 @@
     };
 
     module.exports = {
-
         getRoutePolyline: function (source, destination, callback) {
             var gmaps = new GoogleMapsAPI(_getConfig());
 
@@ -28,13 +27,15 @@
                         destination: destination.join(','),
                         mode       : 'driving'
                     }, callback);
-                },
-                function (data, callback){
-                    var polyline = result.routes[0].overview_polyline[0].points;
-
                 }
 
-            ]);
+            ], function (error, result) {
+                if (error) {
+                    return callback(error);
+                }
+
+                return callback(error, result.routes[0].overview_polyline[0].points);
+            });
 
         }
     }

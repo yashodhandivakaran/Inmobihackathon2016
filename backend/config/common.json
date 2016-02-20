@@ -1,0 +1,9 @@
+{
+  "GOOGLE_KEYS": [
+    "AIzaSyDLqnTOwKE4PbjdRQBSjrBUjsq1ozqpRMs"
+  ],
+  "MONGODB": {
+    "host": "",
+    "port": 123
+  }
+}

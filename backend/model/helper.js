@@ -4,9 +4,11 @@
 
 (function (module) {
     'use strict';
+    var geojsonTools = require('geojson-tools');
+
     module.exports = {
         getDistanceBetweenLatLng: function (source, destination) {
-
+            return geojsonTools.getDistance([source, destination], 5);
         }
     }
 

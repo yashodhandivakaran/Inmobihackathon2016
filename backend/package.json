@@ -18,7 +18,9 @@
   "homepage": "https://github.com/yashodhandivakaran/Inmobihackathon2016",
   "dependencies": {
     "async": "^1.5.2",
+    "geojson-tools": "^0.2.1",
     "googlemaps": "^1.2.0",
+    "mongodb": "^2.1.7",
     "polyline": "^0.2.0",
     "underscore": "^1.8.3"
   }
