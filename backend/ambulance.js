@@ -42,7 +42,7 @@
             }
         ], function (error) {
             if (error) {
-                console.log(error);
+                console.log('saveLocation success Error: ', error);
                 return res.failure(context, error);
             }
 
