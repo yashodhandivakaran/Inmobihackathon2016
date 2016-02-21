@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend API suite for InMobi Hackaday 2016",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yashodhandivakaran/Inmobihackathon2016"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yashodhandivakaran/Inmobihackathon2016/issues"
+  },
+  "homepage": "https://github.com/yashodhandivakaran/Inmobihackathon2016",
+  "dependencies": {
+    "async": "^1.5.2",
+    "geojson-tools": "^0.2.1",
+    "googlemaps": "^1.2.0",
+    "mongodb": "^2.1.7",
+    "polyline": "^0.2.0",
+    "underscore": "^1.8.3"
+  }
+}
