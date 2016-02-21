@@ -33,11 +33,19 @@
                 mongoModel.getNearByUsers(source, callback);
             },
             function filterUsers(users, callback) {
+                if (users.length === 0) {
+                    return callback(null, []);
+                }
+
                 async.filter(users, function (user, callback) {
                     mongoModel.isUserNearAmbulance(ambulanceId, user.location, callback);
                 }, callback);
             },
             function markUsersForAlert(users, callback) {
+                if (users.length === 0) {
+                    return callback(null);
+                }
+
                 mongoModel.insertUsersForAlerting(ambulanceId, users, callback);
             }
         ], function (error) {
