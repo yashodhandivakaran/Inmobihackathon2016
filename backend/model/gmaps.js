@@ -10,7 +10,7 @@
     var GOOGLE_KEYS   = CONFIG.GOOGLE_KEYS;
 
     var _getConfig = function () {
-        var GMAPS_CONFIG = {
+        return {
             key             : GOOGLE_KEYS[Math.floor(Math.random() * GOOGLE_KEYS.length)],
             encode_polylines: false
         };
@@ -18,7 +18,10 @@
 
     module.exports = {
         getRoutePolyline: function (source, destination, callback) {
-            var gmaps = new GoogleMapsAPI(_getConfig());
+            var gmaps = new GoogleMapsAPI({
+                key             : GOOGLE_KEYS[Math.floor(Math.random() * GOOGLE_KEYS.length)],
+                encode_polylines: false
+            });
 
             async.waterfall([
                 function (callback) {
@@ -34,7 +37,8 @@
                     return callback(error);
                 }
 
-                return callback(error, result.routes[0].overview_polyline[0].points);
+                console.log('polyline',result.routes[0].overview_polyline.points);
+                return callback(error, result.routes[0].overview_polyline.points);
             });
 
         }

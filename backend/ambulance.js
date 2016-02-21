@@ -30,27 +30,33 @@
                 _storeDetails(ambulanceId, source, destination, data, callback);
             },
             function getNearByUsers(callback) {
+                console.log('getNearByUsers')
                 mongoModel.getNearByUsers(source, callback);
             },
             function filterUsers(users, callback) {
+                console.log('filterUsers');
                 if (users.length === 0) {
                     return callback(null, []);
                 }
+
+                console.log('users', users);
 
                 async.filter(users, function (user, callback) {
                     mongoModel.isUserNearAmbulance(ambulanceId, user.location, callback);
                 }, callback);
             },
             function markUsersForAlert(users, callback) {
+                console.log('markUsersForAlert');
                 if (users.length === 0) {
                     return callback(null);
                 }
 
+                console.log('users', users);
                 mongoModel.insertUsersForAlerting(ambulanceId, users, callback);
             }
         ], function (error) {
             if (error) {
-                console.log('saveLocation success Error: ', error);
+                console.log('saveLocation Error: ', error);
                 return res.failure(context, error);
             }
 
@@ -63,15 +69,15 @@
         gmapsModel.getRoutePolyline(source, destination, callback);
     };
 
-    var _decodePolyline = function (polyline) {
-        return polyline.decode(polyline);
+    var _decodePolyline = function (pl) {
+        return polyline.decode(pl);
     };
 
     var _storeDetails = function (ambulanceId, source, destination, polyline, callback) {
-        mongoModel.insertAmbulanceLocation(ambulanceId, {
+        mongoModel.updateOrInsertAmbulanceLocation(ambulanceId, {
             source     : source,
             destination: destination,
-            polyline   : polyline
+            polyline   : _decodePolyline(polyline)
         }, callback);
     };
 

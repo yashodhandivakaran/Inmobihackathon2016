@@ -13,7 +13,7 @@
     };
 
     module.exports = {
-        insertAmbulanceLocation : function (ambulanceId, data, callback) {
+        updateOrInsertAmbulanceLocation: function (ambulanceId, data, callback) {
 
             var polyline = data.polyline;
 
@@ -22,12 +22,13 @@
                 polyline = [data.source, data.destination];
             }
 
+            console.log('trying to connect to mongo')
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
                 }
 
-                var collection = db.collection('ambulance');
+                var collection = db.collection('ambulances');
                 var doc        = {
                     _id        : ambulanceId,
                     source     : {
@@ -44,14 +45,16 @@
                     }
                 };
 
-                collection.insertOne(doc, function (error, result) {
+                console.log('tring to insert');
+                collection.update(doc, {upsert: true}, function (error, result) {
                     db.close();
                     callback(error);
                 });
             });
 
         },
-        getNearByUsers          : function (location, callback) {
+        getNearByUsers                 : function (location, callback) {
+            console.log('location',location);
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
@@ -74,7 +77,9 @@
                     _id     : 1,
                     location: 1
                 };
-                collection.find(query, projection, function (error, result) {
+
+                console.log('getNearByUsers')
+                collection.find().toArray(query, projection, function (error, result) {
                     db.close();
 
                     if (error) {
@@ -85,13 +90,13 @@
                 });
             });
         },
-        isUserNearAmbulance     : function (ambulanceId, userLocation, callback) {
+        isUserNearAmbulance            : function (ambulanceId, userLocation, callback) {
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
                 }
 
-                var collection = db.collection('ambulance');
+                var collection = db.collection('ambulances');
                 var query      = {
                     polyline: {
                         '$near': {
@@ -108,7 +113,7 @@
                     _id: 1
                 };
 
-                collection.find(query, projection, function (err, data) {
+                collection.find().toArray(query, projection, function (err, data) {
                     db.close();
 
                     if (err) {
@@ -121,7 +126,7 @@
 
             });
         },
-        insertUsersForAlerting  : function (ambulanceId, users, callback) {
+        insertUsersForAlerting         : function (ambulanceId, users, callback) {
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
@@ -133,13 +138,13 @@
                     users: users
                 };
 
-                collection.insertOne(doc, function (error, result) {
+                collection.update(doc, {upsert: true}, function (error, result) {
                     db.close();
                     callback(error);
                 });
             });
         },
-        saveOrUpdateUserLocation: function (data, callback) {
+        saveOrUpdateUserLocation       : function (data, callback) {
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
@@ -147,18 +152,14 @@
 
                 var collection = db.collection('users');
                 var query      = {
-                    _id   : data.user_id,
-                    source: {
+                    _id     : data.user_id,
+                    location: {
                         type       : "Point",
                         coordinates: data.source
                     }
                 };
 
-                var projection = {
-                    upsert: true
-                };
-
-                collection.update(query, projection, function (err, results) {
+                collection.update(query, {upsert: true}, function (err, results) {
                     db.close();
                     if (error) {
                         return callback(error);
@@ -169,7 +170,7 @@
 
             });
         },
-        checkforNotification    : function (user_id, callback) {
+        checkforNotification           : function (user_id, callback) {
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
@@ -186,7 +187,7 @@
                     vehicle_number: 1
                 };
 
-                collection.find(query, projection, function (error, results) {
+                collection.find().toArray(query, projection, function (error, results) {
                     db.close();
                     if (error) {
                         callback(error, null);
@@ -197,12 +198,12 @@
 
             });
         },
-        getAmbulanceInfo        : function (ambulanceId, callback) {
+        getAmbulanceInfo               : function (ambulanceId, callback) {
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
                 }
-                var collection = db.collection('ambulance');
+                var collection = db.collection('ambulances');
                 var query      = {
                     ambulanceId: ambulanceId
                 };
@@ -214,7 +215,7 @@
 
                 };
 
-                collection.find(query, function (error, results) {
+                collection.find().toArray(query, function (error, results) {
                     db.close();
                     if (error) {
                         callback(error, null);
