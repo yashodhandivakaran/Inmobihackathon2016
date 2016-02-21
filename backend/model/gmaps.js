@@ -37,6 +37,10 @@
                     return callback(error);
                 }
 
+                if(result.routes.length <= 0){
+                    return callback(null, []);
+                }
+
                 console.log('polyline',result.routes[0].overview_polyline.points);
                 return callback(error, result.routes[0].overview_polyline.points);
             });

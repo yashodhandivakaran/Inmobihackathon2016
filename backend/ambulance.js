@@ -27,6 +27,9 @@
                 _getRoutePolyline(source, destination, callback);
             },
             function (data, callback) {
+                if (data.length === 0) {
+                    return callback('no polyline found');
+                }
                 _storeDetails(ambulanceId, source, destination, data, callback);
             },
             function getNearByUsers(callback) {
@@ -34,6 +37,8 @@
                 mongoModel.getNearByUsers(source, callback);
             },
             function filterUsers(users, callback) {
+
+
                 console.log('filterUsers');
                 if (users.length === 0) {
                     return callback(null, []);
@@ -41,9 +46,33 @@
 
                 console.log('users', users);
 
-                async.filter(users, function (user, callback) {
-                    mongoModel.isUserNearAmbulance(ambulanceId, user.location, callback);
-                }, callback);
+                var finalUsers = [];
+                async.each(users, function (item, callback) {
+                    var location = item.location.coordinates;
+                    console.log('item', item);
+                    mongoModel.isUserNearAmbulance(ambulanceId, location, function (error, data) {
+                        if (error) {
+                            return callback(error);
+                        }
+
+                        if (data === true) {
+                            finalUsers.push(item._id);
+                        }
+                    });
+                }, function (error) {
+                    if (error) {
+                        console.log('filterUsers err', error);
+                        return callback(error);
+                    }
+
+                    callback(null, finalUsers);
+                });
+
+                //async.filter(users, function (user, callback) {
+                //    console.log('user', user);
+                //    var location = user.coordinates;
+                //    mongoModel.isUserNearAmbulance(ambulanceId, location, callback);
+                //}, callback);
             },
             function markUsersForAlert(users, callback) {
                 console.log('markUsersForAlert');
@@ -77,7 +106,7 @@
         mongoModel.updateOrInsertAmbulanceLocation(ambulanceId, {
             source     : source,
             destination: destination,
-            polyline   : _decodePolyline(polyline)
+            location   : _decodePolyline(polyline)
         }, callback);
     };
 

@@ -15,14 +15,14 @@
     module.exports = {
         updateOrInsertAmbulanceLocation: function (ambulanceId, data, callback) {
 
-            var polyline = data.polyline;
+            var location = data.location;
 
-            if (polyline.length < 2) {
-                console.log('resetting the polyline');
-                polyline = [data.source, data.destination];
+            if (location.length < 2) {
+                console.log('resetting the location');
+                location = [data.source, data.destination];
             }
 
-            console.log('trying to connect to mongo')
+            console.log('trying to connect to mongo');
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
@@ -30,7 +30,6 @@
 
                 var collection = db.collection('ambulances');
                 var doc        = {
-                    _id        : ambulanceId,
                     source     : {
                         type       : "Point",
                         coordinates: data.source
@@ -39,14 +38,14 @@
                         type       : "Point",
                         coordinates: data.destination
                     },
-                    polyline   : {
+                    location   : {
                         type       : "LineString",
-                        coordinates: polyline
+                        coordinates: location
                     }
                 };
 
                 console.log('tring to insert');
-                collection.update(doc, {upsert: true}, function (error, result) {
+                collection.update({_id: ambulanceId}, doc, {upsert: true}, function (error, result) {
                     db.close();
                     callback(error);
                 });
@@ -54,7 +53,7 @@
 
         },
         getNearByUsers                 : function (location, callback) {
-            console.log('location',location);
+            console.log('location', location);
             MongoClient.connect(_getMongoURL(), function (err, db) {
                 if (err) {
                     return callback(err);
@@ -79,9 +78,9 @@
                 };
 
                 console.log('getNearByUsers')
-                collection.find().toArray(query, projection, function (error, result) {
+                collection.find(query, projection).toArray(function (error, result) {
                     db.close();
-
+                    console.log('special find getNearByUsers', result)
                     if (error) {
                         return callback(error);
                     }
@@ -98,7 +97,7 @@
 
                 var collection = db.collection('ambulances');
                 var query      = {
-                    polyline: {
+                    location: {
                         '$near': {
                             '$geometry'   : {
                                 type       : "Point",
@@ -113,7 +112,7 @@
                     _id: 1
                 };
 
-                collection.find().toArray(query, projection, function (err, data) {
+                collection.find(query, projection).toArray(function (err, data) {
                     db.close();
 
                     if (err) {
@@ -121,6 +120,7 @@
                         return callback(false);
                     }
 
+                    console.log('ambulanceId', ambulanceId, 'userLoc', userLocation);
                     callback(data.length > 0);
                 });
 
@@ -134,11 +134,10 @@
 
                 var collection = db.collection('alerts');
                 var doc        = {
-                    _id  : ambulanceId,
                     users: users
                 };
 
-                collection.update(doc, {upsert: true}, function (error, result) {
+                collection.update({_id: ambulanceId}, doc, {upsert: true}, function (error, result) {
                     db.close();
                     callback(error);
                 });
@@ -152,20 +151,19 @@
 
                 var collection = db.collection('users');
                 var query      = {
-                    _id     : data.user_id,
                     location: {
                         type       : "Point",
-                        coordinates: data.source
+                        coordinates: data.location
                     }
                 };
 
-                collection.update(query, {upsert: true}, function (err, results) {
+                collection.update({_id: data.user_id}, query, {upsert: true}, function (err, results) {
                     db.close();
-                    if (error) {
-                        return callback(error);
+                    if (err) {
+                        return callback(err);
                     }
-                    console.log('result obtained after adding user:', results);
-                    callback(null, results);
+                    console.log('result obtained after adding user:');
+                    callback(null);
                 });
 
             });
@@ -183,16 +181,16 @@
                 };
 
                 var projection = {
-                    _id           : 1,
-                    vehicle_number: 1
+                    _id: 1
                 };
 
-                collection.find().toArray(query, projection, function (error, results) {
+                collection.find(query, projection).toArray(function (error, results) {
                     db.close();
                     if (error) {
-                        callback(error, null);
+                        return callback(error, null);
                     }
 
+                    console.log('checkforNotification', results);
                     callback(null, results);
                 });
 
@@ -205,20 +203,18 @@
                 }
                 var collection = db.collection('ambulances');
                 var query      = {
-                    ambulanceId: ambulanceId
+                    _id: ambulanceId
                 };
 
                 var projection = {
-                    _id           : 1,
-                    vehicle_number: 1,
-                    source        : 1
-
+                    _id   : 1,
+                    source: 1
                 };
 
-                collection.find().toArray(query, function (error, results) {
+                collection.find(query, projection).toArray(function (error, results) {
                     db.close();
                     if (error) {
-                        callback(error, null);
+                        return callback(error, null);
                     }
 
                     callback(null, results);

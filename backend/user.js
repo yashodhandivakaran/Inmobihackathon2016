@@ -1,15 +1,15 @@
 (function (exports) {
 
     var async      = require('async');
-    var _          = require('underscore.js');
+    var _          = require('underscore');
     var res        = require('./response.js');
     var mongoModel = require('./model/mongo.js');
 
     var saveUserLocation = function (event, context) {
-        var source  = event.source;
+        var location  = event.location;
         var user_id = event.user_id;
 
-        if (!_.isArray(source)) {
+        if (!_.isArray(location)) {
             return res.failure(context, new Error('Source is not an array'));
         }
         if (_.isEmpty(user_id)) {
@@ -20,7 +20,7 @@
             function (callback) {
                 mongoModel.saveOrUpdateUserLocation({
                     user_id: user_id,
-                    source : source
+                    location : location
                 }, callback);
             },
             function (callback) {
@@ -32,10 +32,10 @@
         ], function (error, data) {
             if (error) {
                 console.log('saveUserLocation : error ', error);
-                res.failure(context, new Error(error));
+                return res.failure(context, new Error(error));
             }
 
-            console.log('saveUserLocation :Success', data);
+            console.log('saveUserLocation :Success');
             res.success(context, data);
         });
 
